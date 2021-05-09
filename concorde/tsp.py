@@ -8,7 +8,7 @@ import tempfile
 import uuid
 
 from concorde._concorde import _CCutil_gettsplib, _CCtsp_solve_dat
-from concorde.util import write_tsp_file, EDGE_WEIGHT_TYPES
+from concorde.util import write_tsp_file, EDGE_WEIGHT_TYPES, write_tsp_file_explicit
 
 ComputedTour = namedtuple('ComputedTour', [
     'tour', 'optimal_value', 'success', 'found_tour', 'hit_timebound'
@@ -23,6 +23,10 @@ class TSPSolver(object):
 
     @classmethod
     def from_tspfile(cls, fname):
+        print(fname)
+        with open(fname) as f:
+            data = f.readlines()
+            print(data)
         ncount, data = _CCutil_gettsplib(fname)
         if data is None:
             raise RuntimeError("Error in loading {}".format(fname))
@@ -54,6 +58,21 @@ class TSPSolver(object):
             return cls.from_tspfile(ccfile)
         finally:
             shutil.rmtree(ccdir)
+    
+    @classmethod
+    def from_data_explicit(cls,W_dist,name=None):
+        if name is None:
+            name = uuid.uuid4().hex
+        try:
+            ccdir = tempfile.mkdtemp()
+            ccfile = os.path.join(ccdir, 'data.tsp')
+            with open(ccfile, 'w') as fp:
+                write_tsp_file_explicit(fp, W_dist, name)
+            return cls.from_tspfile(ccfile)
+        finally:
+            shutil.rmtree(ccdir)
+
+
 
     @property
     def x(self):

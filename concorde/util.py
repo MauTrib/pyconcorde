@@ -37,6 +37,23 @@ def write_tsp_file(fp, xs, ys, norm, name):
         fp.write("{} {} {}\n".format(n, x, y))
     fp.write("EOF\n")
 
+def write_tsp_file_explicit(fp, W_dist, name):
+    n,_ = W_dist.shape
+    assert len(W_dist.shape)==2 and W_dist.shape[0] == W_dist.shape[1], f'Distance matrix is not of good format : {W_dist.shape}'
+    fp.write("NAME: {}\n".format(name))
+    fp.write("TYPE: TSP\n")
+    fp.write("DIMENSION: {}\n".format(n))
+    fp.write("EDGE_WEIGHT_TYPE: EXPLICIT\n")
+    fp.write("EDGE_WEIGHT_FORMAT: FULL_MATRIX\n")
+    fp.write("EDGE_WEIGHT_SECTION\n")
+    for i in range(n):
+        line = ''
+        for j in range(n):
+            line += str(W_dist[i,j])
+            line += ' '
+        line = line[:-1] + '\n' #Removing the last space adding the new line
+        fp.write(line)
+    fp.write("EOF\n")
 
 def read_tsp_tour(fname):
     has_tour = False
